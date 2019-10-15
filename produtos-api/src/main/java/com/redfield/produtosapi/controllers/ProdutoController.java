@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.redfield.produtosapi.models.Produto;
 import com.redfield.produtosapi.repository.ProdutoRepository;
@@ -45,11 +46,13 @@ public class ProdutoController
 	@GetMapping("/{id}")
 	@ApiOperation(value="Busca Produto por ID")
 	public ResponseEntity<Produto >getProduto(@PathVariable(value="id") long id)
-	{
+	{		
 		Produto prod = produtoR.findById(id);
-		if(prod!=null)
-			return ResponseEntity.ok(prod);
-		return ResponseEntity.notFound().build();
+		if(prod==null)
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+					"Produto não encontrado!");
+		return ResponseEntity.ok(prod);
+		
 	}
 	
 	@PostMapping
@@ -65,6 +68,11 @@ public class ProdutoController
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void deleteProduto(@PathVariable(value="id") long id)
 	{
+		if(produtoR.findById(id)==null)
+		{
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+				"Produto não encontrado!");
+		}
 		produtoR.deleteById(id);
 	}
 	
@@ -72,6 +80,12 @@ public class ProdutoController
 	@ApiOperation(value="Atualiza Produto")
 	public ResponseEntity<Produto> updateProduto(@NotNull @Valid @RequestBody Produto prod)
 	{
+		if(produtoR.findById(prod.getId())==null)
+		{
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+				"Produto não encontrado!");
+		}
+		
 		return ResponseEntity.ok(produtoR.save(prod));
 	}
 	
