@@ -6,5 +6,5 @@ import com.redfield.produtosapi.models.Produto;
 
 public interface ProdutoRepository extends JpaRepository<Produto, Long>
 {
-
+	public Produto findById(long id);
 }
